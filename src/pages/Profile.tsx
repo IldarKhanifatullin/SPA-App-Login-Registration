@@ -1,9 +1,9 @@
-// import React from 'react';
+import React from 'react';
 
-const Profile = () => {
+const Profile: React.FC = () => {
     return (
         <div>
-
+            <h1>Мой профиль</h1>
         </div>
     );
 };

@@ -1,4 +1,5 @@
-import React, {useEffect, useState} from 'react';
+import React from 'react';
+// import {useEffect, useState} from 'react';
 import {Card, Form, Input, Button, Checkbox, Space} from 'antd';
 import type {FormProps} from 'antd';
 import {useTypedDispatch} from "../shared/hooks/useTypedDispatch.ts";
@@ -13,13 +14,9 @@ import {PATHS} from "../router/routes.tsx";
 import {setAuth, setChecking} from "../store/reducers/authReducer.ts";
 import Loading from "../shared/UI/Loading/Loading.tsx";
 
-interface SelectedStates {
-    currentProfile: {
-        id: string;
-        name: string;
-    } | null;
-    loading: boolean;
-}
+// interface SelectedStates {
+//     loading: boolean;
+// }
 
 type FieldType = {
     name?: string;
@@ -53,17 +50,13 @@ const Login: React.FC = () => {
 
     const navigate: NavigateFunction = useNavigate();
 
-    const [saveRemember, setSaveRemember] = useState<{ name: string } | null>(null);
+    // const [saveRemember, setSaveRemember] = useState<{ name: string } | null>(null);
 
     const dispatch: AppDispatch = useTypedDispatch();
 
     // const currentProfile: { id: string; name: string; } | null = useTypedSelector((state: RootState): { id: string; name: string; } | null => state.profile.profile);
 
-    const { currentProfile, loading }: SelectedStates = useTypedSelector(
-        (state: RootState): SelectedStates => ({
-            currentProfile: state.profile.profile,
-            loading: state.profile.loading,
-        }));
+    const loading: boolean = useTypedSelector((state: RootState): boolean => state.profile.loading);
 
     const onFinish: FormProps<FieldType>['onFinish'] = async (values: FieldType): Promise<void> => {
         if (!values.name || !values.username || values.remember === undefined) {
@@ -73,49 +66,50 @@ const Login: React.FC = () => {
 
         const { name, username, remember } = values;
 
-        const token = await dispatch(userLogin(name, username));
+        const token: string | null = await dispatch(userLogin(name, username));
 
         // const token: string | null = storeRef?.getState().profile.token ?? null;
-        // const token: string | null = localStorage.getItem('token');
-        if (token) {
-            await dispatch(fetchProfile(token));
+
+        if (token !== null) {
+            const currentProfile = await dispatch(fetchProfile(token));
+
+            if (currentProfile !== null && remember) {
+                localStorage.setItem('currentProfile', JSON.stringify(currentProfile));
+            }
+
+            if (currentProfile) {
+                dispatch(setChecking(false));
+                dispatch(setAuth(true))
+                dispatch(setChecking(true));
+                navigate(PATHS.ROOT);
+            }
         }
-
-        // const currentProfile: { id: string; name: string; } | null = storeRef?.getState().profile.profile ?? null;
-        // if (remember && currentProfile !== null && currentProfile?.id && currentProfile?.name === name) {
-        //     localStorage.setItem('currentProfile', currentProfile.id);
-        // }
-
-        if (remember) {
-            setSaveRemember({name: name});
-        }
-
     };
 
-    useEffect(() => {
-
-        if (currentProfile) {
-            dispatch(setChecking(false));
-            dispatch(setAuth(true))
-            dispatch(setChecking(true));
-            navigate(PATHS.ROOT);
-        }
-
-        // console.log('isAuth');
-
-    }, [currentProfile]);
-
-    useEffect(() => {
-
-        if (saveRemember && currentProfile !== null && currentProfile?.id && currentProfile?.name === saveRemember.name) {
-            localStorage.setItem('currentProfile', currentProfile.id);
-            setSaveRemember(null);
-            console.log('saveRemember');
-        }
-
-        // console.log('saveRemember');
-
-    }, [currentProfile, saveRemember]);
+    // useEffect(() => {
+    //
+    //     if (currentProfile) {
+    //         dispatch(setChecking(false));
+    //         dispatch(setAuth(true))
+    //         dispatch(setChecking(true));
+    //         navigate(PATHS.ROOT);
+    //     }
+    //
+    //     // console.log('isAuth');
+    //
+    // }, [currentProfile]);
+    //
+    // useEffect(() => {
+    //
+    //     if (saveRemember && currentProfile !== null && currentProfile?.id && currentProfile?.name === saveRemember.name) {
+    //         localStorage.setItem('currentProfile', currentProfile.id);
+    //         setSaveRemember(null);
+    //         console.log('saveRemember');
+    //     }
+    //
+    //     // console.log('saveRemember');
+    //
+    // }, [currentProfile, saveRemember]);
 
     if (loading) {
         return (

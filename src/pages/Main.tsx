@@ -30,11 +30,12 @@ const Main: React.FC = () => {
 
     return (
         <div>
-            <h1>
-                Вы на главной странице
-            </h1>
+            <h1>Вы на главной странице</h1>
             <Button onClick={() => {setLogout()}}>
                 Выйти
+            </Button>
+            <Button onClick={() => {navigate(PATHS.PROFILE)}}>
+                Мой профиль
             </Button>
         </div>
     );

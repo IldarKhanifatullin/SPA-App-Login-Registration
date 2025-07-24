@@ -49,7 +49,7 @@ const App: React.FC = () => {
     }, [])
 
     useEffect(() => {
-        console.log('Users обновились:', users);
+        console.log(users);
         console.log(profile);
         console.log(localStorage.getItem('currentProfile'));
     }, [users, profile]);

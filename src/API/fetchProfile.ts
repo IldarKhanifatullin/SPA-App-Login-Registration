@@ -9,8 +9,8 @@ interface ProfileResponse {
     name: string;
 }
 
-export const fetchProfile: (token: string) => (dispatch: AppDispatch) => Promise<void> = (token: string) => {
-    return async (dispatch: AppDispatch): Promise<void> => {
+export const fetchProfile: (token: string) => (dispatch: AppDispatch) => Promise<ProfileResponse | null> = (token: string) => {
+    return async (dispatch: AppDispatch): Promise<ProfileResponse | null> => {
         dispatch(setProfileLoading(true));
         dispatch(setProfileError(null));
         try {
@@ -20,13 +20,16 @@ export const fetchProfile: (token: string) => (dispatch: AppDispatch) => Promise
                 }
             });
             if (response.status === 200) {
-                dispatch(setProfile(response?.data))
-                localStorage.setItem('token', token);
+                const data: ProfileResponse = response?.data
+                dispatch(setProfile(data));
+                // localStorage.setItem('currentProfile', response?.data.id);
+                return data
             }
         } catch (error: unknown) {
             dispatch(setProfileError(errorHandler(error)))
         } finally {
             dispatch(setProfileLoading(false));
         }
+        return null;
     }
 }
